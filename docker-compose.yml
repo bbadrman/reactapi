@@ -3,7 +3,7 @@ services:
   web:
     build: ./
     ports:
-      - "82:80"
+      - "85:80"
     depends_on:
       - db
     expose:
@@ -13,22 +13,22 @@ services:
       - ./local/php.ini:/usr/local/etc/php/php.ini
       - ./local/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     networks:
-      - test_network
+      - apireact_network
 
   db:
     image: mysql
     ports:
-      - "3306:3306"
+      - "3385:3306"
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: test_db
+      MYSQL_DATABASE: apireact_db
       MYSQL_USER: 123456
       MYSQL_PASSWORD: badr
     volumes:
       - "./db:/var/lib/mysql"
     networks:
-      - test_network
+      - apireact_network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -40,8 +40,8 @@ services:
     depends_on:
       - db
     networks:
-      - test_network
+      - apireact_network
 
 networks:
-  test_network:
+  apireact_network:
     driver: bridge
