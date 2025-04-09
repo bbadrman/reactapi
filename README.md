@@ -74,3 +74,6 @@ The easiest way is to install the apache Symfony pack by executing the following
 ## Main Tasks
 
 To do ...
+
+## creat faker :
+composer require fakerphp/faker pour la version 6.4
