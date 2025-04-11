@@ -27,6 +27,9 @@ class Invoice
     #[ORM\JoinColumn(nullable: false)]
     private ?Customer $customer = null;
 
+    #[ORM\Column]
+    private ?int $chrono = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -76,6 +79,18 @@ class Invoice
     public function setCustomer(?Customer $customer): static
     {
         $this->customer = $customer;
+
+        return $this;
+    }
+
+    public function getChrono(): ?int
+    {
+        return $this->chrono;
+    }
+
+    public function setChrono(int $chrono): static
+    {
+        $this->chrono = $chrono;
 
         return $this;
     }
