@@ -77,3 +77,20 @@ To do ...
 
 ## creat faker :
 composer require fakerphp/faker pour la version 6.4
+
+
+## APi
+
+1- pour desactiver pagination api :
+sur le fichier config/packages/api_platform.yaml
+collection:
+        pagination:
+           enabled: false          # si nous avous pas la pagination
+
+2- alors si je veux active seulement sur une ressource on ajoute grâce à l' annotation comme ca 👍
+
+ attributes={ 
+ *      "pagination_enabled": false,
+ *       "pagination_items_per_page": 10,
+ *       "order": {"amount":"desc"}
+ *       },
