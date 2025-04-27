@@ -8,33 +8,46 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use App\Repository\InvoiceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
-
-#[ApiResource(paginationItemsPerPage: 10, order: ['amount' => 'DESC'])]
+#[ApiResource(paginationItemsPerPage: 10, order: ['amount' => 'DESC'], normalizationContext: ['groups' => ['invoice:read']])]
 #[ApiFilter(OrderFilter::class, properties: ['amount', 'sentAt'])]
 class Invoice
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['invoice:read', 'customer:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['invoice:read', 'customer:read'])]
     private ?float $amount = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['invoice:read', 'customer:read'])]
     private ?\DateTimeInterface $sentAt = null;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'invoices')]
+    #[Groups(['invoice:read'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Customer $customer = null;
 
     #[ORM\Column]
+    #[Groups(['invoice:read', 'customer:read'])]
     private ?int $chrono = null;
+
+    //Permet de récupérer le User à qui appartient finalement la facture
+    #[Groups(['invoice:read'])]
+    public function getUser(): ?User
+    {
+        return $this->customer ? $this->customer->getUser() : null;
+    }
 
     public function getId(): ?int
     {
