@@ -5,14 +5,45 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\Repository\InvoiceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\User;
+use App\Controller\InvoiceIncrementationController;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
-#[ApiResource(paginationItemsPerPage: 10, order: ['amount' => 'DESC'], normalizationContext: ['groups' => ['invoice:read']])]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/customers/{id}/invoices',
+            normalizationContext: ['groups' => ['invoices_subresource']],
+            paginationEnabled: false,
+            paginationItemsPerPage: 10,
+            order: ['amount' => 'desc']
+        ),
+        new Get(),
+        new Put(),
+        new Delete(),
+        new Post(
+            uriTemplate: '/invoices/{id}/increment',
+            controller: InvoiceIncrementationController::class,
+            openapiContext: [
+                'summary' => 'Incrémente une facture',
+                'description' => 'Incremente le chrono d\'une facture donnée'
+            ]
+        )
+    ],
+    paginationItemsPerPage: 10,
+    order: ['amount' => 'DESC'],
+    normalizationContext: ['groups' => ['invoice:read']]
+)]
 #[ApiFilter(OrderFilter::class, properties: ['amount', 'sentAt'])]
 class Invoice
 {
