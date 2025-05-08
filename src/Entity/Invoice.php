@@ -16,6 +16,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\User;
 use App\Controller\InvoiceIncrementationController;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: InvoiceRepository::class)]
 #[ApiResource(
@@ -31,6 +33,7 @@ use App\Controller\InvoiceIncrementationController;
         new Get(),
         new Put(),
         new Delete(),
+        new Post(),
         new Post(
             uriTemplate: '/invoices/{id}/increment',
             controller: InvoiceIncrementationController::class,
@@ -42,7 +45,8 @@ use App\Controller\InvoiceIncrementationController;
     ],
     paginationItemsPerPage: 10,
     order: ['amount' => 'DESC'],
-    normalizationContext: ['groups' => ['invoice:read']]
+    normalizationContext: ['groups' => ['invoice:read']],
+    denormalizationContext: ['disable_type_enforcement' => true]
 )]
 #[ApiFilter(OrderFilter::class, properties: ['amount', 'sentAt'])]
 class Invoice
@@ -50,18 +54,20 @@ class Invoice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['invoice:read', 'customer:read'])]
+    #[Groups(['invoice:read', 'customer:read', 'invoices_subresource'])]
     private ?int $id = null;
 
     #[ORM\Column]
-    #[Groups(['invoice:read', 'customer:read'])]
+    #[Groups(['invoice:read', 'customer:read', 'invoices_subresource'])]
+    #[Assert\NotBlank(message: 'Le montant de la facture est obligatoire')]
     private ?float $amount = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['invoice:read', 'customer:read'])]
+    #[Groups(['invoice:read', 'customer:read', 'invoices_subresource'])]
     private ?\DateTimeInterface $sentAt = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['invoice:read', 'customer:read', 'invoices_subresource'])]
     private ?string $status = null;
 
     #[ORM\ManyToOne(inversedBy: 'invoices')]
@@ -74,7 +80,7 @@ class Invoice
     private ?int $chrono = null;
 
     //Permet de récupérer le User à qui appartient finalement la facture
-    #[Groups(['invoice:read'])]
+    #[Groups(['invoice:read', 'invoices_subresource'])]
     public function getUser(): ?User
     {
         return $this->customer ? $this->customer->getUser() : null;
@@ -90,7 +96,7 @@ class Invoice
         return $this->amount;
     }
 
-    public function setAmount(float $amount): static
+    public function setAmount($amount): static
     {
         $this->amount = $amount;
 
@@ -102,7 +108,7 @@ class Invoice
         return $this->sentAt;
     }
 
-    public function setSentAt(\DateTimeInterface $sentAt): static
+    public function setSentAt($sentAt): static
     {
         $this->sentAt = $sentAt;
 
@@ -138,7 +144,7 @@ class Invoice
         return $this->chrono;
     }
 
-    public function setChrono(int $chrono): static
+    public function setChrono($chrono): static
     {
         $this->chrono = $chrono;
 

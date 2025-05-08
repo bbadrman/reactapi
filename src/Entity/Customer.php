@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Link;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 
@@ -46,14 +47,30 @@ class Customer
 
     #[ORM\Column(length: 255)]
     #[Groups(['customer:read', 'invoice:read'])]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['customer:read', 'invoice:read'])]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['customer:read', 'invoice:read'])]
+    #[Assert\NotBlank(message: 'Le email est obligatoire')]
+    #[Assert\Email(message: 'Le format doit etre email  ')]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -67,6 +84,7 @@ class Customer
 
     #[ORM\ManyToOne(inversedBy: 'customers')]
     #[Groups(['customer:read'])]
+    #[Assert\NotBlank(message: 'Le email est obligatoire')]
     private ?User $user = null;
 
     public function __construct()
